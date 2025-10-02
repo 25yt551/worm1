@@ -1,26 +1,3 @@
-<?php
-// Set comprehensive CORS headers to prevent 405 errors
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin');
-header('Access-Control-Allow-Credentials: false');
-header('Access-Control-Max-Age: 3600');
-header('Content-Type: application/json');
-
-// Handle preflight OPTIONS requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-// Only allow GET and POST for this specific endpoint
-if (!in_array($_SERVER['REQUEST_METHOD'], ['GET', 'POST'])) {
-    http_response_code(405);
-    header('Allow: GET, POST, OPTIONS');
-    echo json_encode(['error' => 'Method not allowed. Only GET, POST, and OPTIONS are supported.']);
-    exit();
-}
-?>
 {
     "streamer": "UP",
     "extension": "wormup",
