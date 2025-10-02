@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wormate.io Extension API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .endpoint {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .method {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .error-button {
+            background: #f44336;
+        }
+        .error-button:hover {
+            background: #da190b;
+        }
+        .result {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 Wormate.io Extension API</h1>
+        
+        <div class="endpoint">
+            <span class="method">GET</span> /check.json
+            <p>Returns game configuration, available skins, and user data (Static JSON)</p>
+            <button class="test-button" onclick="testAPI('GET', 'check.json')">Test JSON Endpoint</button>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">GET</span> /api.html?method=GET
+            <p>CORS-enabled API endpoint that works on GitHub Pages</p>
+            <button class="test-button" onclick="testAPI('GET', 'api.html?method=GET')">Test CORS API</button>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">GET</span> /check.php
+            <p>PHP version with enhanced CORS headers (if PHP is supported)</p>
+            <button class="test-button" onclick="testAPI('GET', 'check.php')">Test PHP Endpoint</button>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">POST</span> /check.php
+            <p>Accepts game data updates (same response as GET for this demo)</p>
+            <button class="test-button" onclick="testAPI('POST', 'check.php')">Test POST Request</button>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">DELETE</span> /check.php (Should return 405)
+            <p>This method is not allowed and will return a proper error</p>
+            <button class="test-button error-button" onclick="testAPI('DELETE', 'check.php')">Test 405 Error</button>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method">OPTIONS</span> /check.php (CORS Preflight)
+            <p>Returns CORS headers for cross-origin requests</p>
+            <button class="test-button" onclick="testAPI('OPTIONS', 'check.php')">Test CORS Headers</button>
+        </div>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function testAPI(method, endpoint = 'check.php') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = `Testing ${method} request to ${endpoint}...\n`;
+            
+            try {
+                const response = await fetch('./' + endpoint, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                resultDiv.textContent += `Status: ${response.status} ${response.statusText}\n\n`;
+                
+                // Show relevant headers
+                resultDiv.textContent += 'Response Headers:\n';
+                for (let [key, value] of response.headers.entries()) {
+                    if (key.toLowerCase().startsWith('access-control') || 
+                        key === 'allow' || 
+                        key === 'content-type' ||
+                        key === 'server') {
+                        resultDiv.textContent += `${key}: ${value}\n`;
+                    }
+                }
+                resultDiv.textContent += '\n';
+                
+                // Show response body
+                if (method === 'OPTIONS') {
+                    resultDiv.textContent += 'OPTIONS request completed (check headers above)';
+                } else {
+                    const text = await response.text();
+                    if (text.length > 1000) {
+                        resultDiv.textContent += `Response body (${text.length} chars):\n${text.substring(0, 1000)}...\n[truncated]`;
+                    } else {
+                        resultDiv.textContent += `Response body:\n${text}`;
+                    }
+                }
+                
+            } catch (error) {
+                resultDiv.textContent += `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

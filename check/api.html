@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wormate.io API</title>
+    <script src="api.js"></script>
+</head>
+<body>
+    <script>
+        // CORS-enabled API endpoint that works on GitHub Pages
+        function handleRequest() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const method = urlParams.get('method') || 'GET';
+            const callback = urlParams.get('callback');
+            
+            // Set CORS headers (simulated for client-side)
+            const headers = {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, HEAD',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+                'Content-Type': 'application/json'
+            };
+            
+            let response;
+            
+            if (method === 'OPTIONS') {
+                response = {
+                    status: 200,
+                    headers: headers,
+                    body: ''
+                };
+            } else if (method === 'GET' || method === 'POST') {
+                response = {
+                    status: 200,
+                    headers: headers,
+                    body: JSON.stringify(API_DATA, null, 2)
+                };
+            } else {
+                response = {
+                    status: 405,
+                    headers: {
+                        ...headers,
+                        'Allow': 'GET, POST, OPTIONS'
+                    },
+                    body: JSON.stringify({
+                        error: 'Method not allowed. Only GET, POST, and OPTIONS are supported.'
+                    })
+                };
+            }
+            
+            // Handle JSONP callback
+            if (callback && method !== 'OPTIONS') {
+                document.write(callback + '(' + response.body + ');');
+            } else if (method !== 'OPTIONS') {
+                document.write(response.body);
+            }
+            
+            // Set document title for status
+            document.title = `API Response - ${response.status}`;
+        }
+        
+        // Execute when page loads
+        handleRequest();
+    </script>
+</body>
+</html>
